@@ -4,30 +4,13 @@ import shutil
 from pathlib import Path
 import os
 
+from auth import require_bearer_token
+
 app = FastAPI()
 
 # directory degli upload
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
-
-# --- Sicurezza: Bearer token semplice ---
-security = HTTPBearer(auto_error=True)
-
-def get_expected_token() -> str:
-    # imposta il token via env var; fallback a valore di default per demo
-    return os.getenv("API_BEARER_TOKEN", "mysecrettoken")
-
-def require_bearer_token(
-    creds: HTTPAuthorizationCredentials = Depends(security),
-    expected: str = Depends(get_expected_token),
-):
-    if creds.scheme.lower() != "bearer" or creds.credentials != expected:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing bearer token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return True
 
 @app.post("/upload", dependencies=[Depends(require_bearer_token)])
 async def upload_package(file: UploadFile = File(...)):

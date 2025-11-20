@@ -11,7 +11,7 @@ RUN pip install \
 
 # Copy the rest of the application
 COPY auth.py .
-COPY main.py .
+COPY stats.py .
 
 # Create uploads directory
 RUN mkdir -p uploads
@@ -20,4 +20,4 @@ RUN mkdir -p uploads
 EXPOSE 8000
 
 # Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "stats:app", "--host", "0.0.0.0", "--port", "8000"]
