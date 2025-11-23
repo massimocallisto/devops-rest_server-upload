@@ -13,7 +13,7 @@ kubectl apply -f 00-secret-pvc.yaml
 ```
 
 ## Step 2 – Deployment
-File: `**step3-deployment/deployment.yaml**`
+File: `step3-deployment/deployment.yaml`
 Crea il Deployment per il container, monta il volume e usa il Secret per la variabile d'ambiente.
 
 ```bash
