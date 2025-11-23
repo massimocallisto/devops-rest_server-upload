@@ -13,11 +13,11 @@ kubectl apply -f 00-secret-pvc.yaml
 ```
 
 ## Step 2 – Deployment
-File: `step3-deployment/deployment.yaml`
+File: `01-deployment.yaml`
 Crea il Deployment per il container, monta il volume e usa il Secret per la variabile d'ambiente.
 
 ```bash
-kubectl apply -f **step3-deployment/deployment.yaml**
+kubectl apply -f 01-deployment.yaml
 kubectl get pods -n gestionale
 ```
 
@@ -32,7 +32,7 @@ kubectl get svc -n gestionale
 
 Quando l'EXTERNAL-IP è pronto:
 ```bash
-http://<EXTERNAL-IP>:80/docs
+http://<EXTERNAL-IP>:8000/docs
 ```
 
 Oppure
