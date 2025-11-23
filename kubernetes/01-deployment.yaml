@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upload
+  namespace: gestionale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: upload
+  template:
+    metadata:
+      labels:
+        app: upload
+    spec:
+      containers:
+        - name: upload
+          image: massimocallisto/devops-upload-app:1.0.0-amd64
+          ports:
+            - containerPort: 8000
+          env:
+            - name: API_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: upload-secret
+                  key: API_BEARER_TOKEN
+          volumeMounts:
+            - name: uploads
+              mountPath: /uploads
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: my-uploads-pvc
