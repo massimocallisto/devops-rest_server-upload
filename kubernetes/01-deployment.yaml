@@ -13,6 +13,7 @@ spec:
       labels:
         app: upload
     spec:
+      restartPolicy: Always   # per i Deployment è sempre Always, ma lo esplicitiamo
       containers:
         - name: upload
           image: massimocallisto/devops-upload-app:1.0.0-amd64
@@ -24,6 +25,24 @@ spec:
                 secretKeyRef:
                   name: upload-secret
                   key: API_BEARER_TOKEN
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8000
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 3
           volumeMounts:
             - name: uploads
               mountPath: /uploads
