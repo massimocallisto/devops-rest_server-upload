@@ -13,7 +13,7 @@ spec:
       labels:
         app: upload
     spec:
-      restartPolicy: Always   # per i Deployment è sempre Always, ma lo esplicitiamo
+      restartPolicy: Always
       containers:
         - name: upload
           image: massimocallisto/devops-upload-app:1.0.0-amd64
