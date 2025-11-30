@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s        # ogni quanto Prometheus interroga i target
+
+scrape_configs:
+  - job_name: 'upload-app'
+    static_configs:
+      - targets: ['upload-app:8000']
