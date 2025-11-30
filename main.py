@@ -5,7 +5,7 @@ from pathlib import Path
 import os
 import time
 
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Histogram, Gauge
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import make_asgi_app
 
@@ -44,6 +44,15 @@ UPLOAD_LIST_REQUESTS = Counter(
     "upload_list_requests_total",
     "Numero totale di richieste GET /uploads",
 )
+
+UPLOAD_FILES_TOTAL = Gauge(
+    "upload_files_total",
+    "Numero di file presenti nella directory degli upload"
+)
+
+def update_upload_files_total():
+    count = len([f for f in UPLOAD_DIR.iterdir() if f.is_file()])
+    UPLOAD_FILES_TOTAL.set(count)
 
 # Add prometheus asgi middleware to route /metrics requests
 metrics_app = make_asgi_app()
@@ -85,6 +94,8 @@ async def upload_package(file: UploadFile = File(...)):
         UPLOAD_REQUESTS.labels(status="success").inc()
         UPLOAD_BYTES.inc(file_size)
         UPLOAD_DURATION.observe(time.time() - start_time)
+
+        update_upload_files_total()
         
         return {"filename": file.filename, "size": file_size}
     
