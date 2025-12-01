@@ -16,7 +16,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: upload
-          image: massimocallisto/devops-upload-app:1.0.0-amd64
+          image: massimocallisto/devops-upload-app:1.0.2b-amd64
           ports:
             - containerPort: 8000
           env:

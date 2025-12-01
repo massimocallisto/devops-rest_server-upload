@@ -50,6 +50,16 @@ endpoints for file upload and listing uploaded files, protected by bearer token 
    # or
    docker build -t massimocallisto/devops-upload-app:1.0.0 .
    ```
+   
+Build for a differente plarform:
+
+   ```bash
+  docker buildx build \
+    --platform linux/amd64 \
+    -t massimocallisto/devops-upload-app:1.0.2b-amd64 \
+    --push .
+   ```
+
 2. Run the container:
    ```bash
    docker run -p 8000:8000 -e API_TOKEN=your_secret_token massimocallisto/devops-upload-app:1.0.0
@@ -67,3 +77,10 @@ endpoints for file upload and listing uploaded files, protected by bearer token 
    ```
 
 The service will be available at http://localhost:8000
+
+Trubleshooting Kubernetes
+
+   ```
+kubectl describe pod upload-77d4fd9677-cctp4 -n gestionale | sed -n '/Events/,$p'
+kubectl logs upload-77d4fd9677-cctp4 -n gestionale --previous --tail=200
+   ```

@@ -1,3 +1,5 @@
+import time
+
 from fastapi import FastAPI, Request, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import shutil
@@ -46,6 +48,17 @@ def list_uploads():
 @app.get("/debug")
 def debug(request: Request):
     return {"headers": dict(request.headers)}
+
+@app.get("/sleep")
+async def debug(seconds: int = 10):
+    print(f"sleeping for {seconds} seconds")
+    time.sleep(seconds)   # blocca il thread, ma non l’event loop
+
+    return {"sleep": seconds}
+
+@app.get("/")
+async def started():
+    return {}
 
 if __name__ == "__main__":
     import uvicorn
