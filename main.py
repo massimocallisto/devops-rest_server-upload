@@ -5,7 +5,7 @@ from pathlib import Path
 import os
 import time
 
-from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import Counter, Histogram, Gauge, Summary
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import make_asgi_app
 
@@ -50,6 +50,13 @@ UPLOAD_FILES_TOTAL = Gauge(
     "Numero di file presenti nella directory degli upload"
 )
 
+# Summary of upload file sizes
+UPLOAD_SIZE_SUMMARY = Summary(
+    "upload_file_size_bytes",
+    "Riepilogo statistico delle dimensioni dei file caricati in byte",
+)
+
+
 def update_upload_files_total():
     count = len([f for f in UPLOAD_DIR.iterdir() if f.is_file()])
     UPLOAD_FILES_TOTAL.set(count)
@@ -93,6 +100,7 @@ async def upload_package(file: UploadFile = File(...)):
         # Update metrics for successful upload
         UPLOAD_REQUESTS.labels(status="success").inc()
         UPLOAD_BYTES.inc(file_size)
+        UPLOAD_SIZE_SUMMARY.observe(file_size)  # Add this line
         UPLOAD_DURATION.observe(time.time() - start_time)
 
         update_upload_files_total()
