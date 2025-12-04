@@ -3,6 +3,11 @@ kind: Service
 metadata:
   name: upload
   namespace: gestionale
+  labels:
+    app: upload
+  annotations:
+    prometheus.io/port: "metrics"
+    prometheus.io/scrape: "true"
 spec:
   #type: LoadBalancer
   type: ClusterIP

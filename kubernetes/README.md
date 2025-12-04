@@ -39,3 +39,30 @@ Oppure
 ```bash
 curl http://<EXTERNAL-IP>:8000/uploads -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
+## Prometheus e Grafana
+Reference: https://www.digitalocean.com/community/developer-center/how-to-install-prometheus-monitoring-stack-for-doks-cluster
+
+```
+HELM_CHART_VERSION="79.6.1"
+
+helm install kube-prom-stack prometheus-community/kube-prometheus-stack --version "${HELM_CHART_VERSION}" \
+  --namespace monitoring \
+  --create-namespace
+```
+Credenziali Grafana
+
+```
+Get Grafana 'admin' user password by running:
+  kubectl --namespace monitoring get secrets kube-prom-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+```
+
+### Fix problemi ServiceMonitoring custom app
+Riferimento: https://github.com/prometheus-operator/kube-prometheus/issues/1392
+
+```
+helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack \
+--namespace monitoring --values values.yml
+```
+
+
