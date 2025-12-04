@@ -57,6 +57,25 @@ Get Grafana 'admin' user password by running:
   kubectl --namespace monitoring get secrets kube-prom-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 ```
 
+## Monitoraggio servizio upload-rest
+
+```
+kubectl apply -f 03-monitoring-yml
+```
+
+Dopo il deploy collegarsi a Prometheus con port-formward:
+
+    kubectl  port-forward svc/kube-prom-stack-kube-prome-prometheus -n monitoring 9090:9090
+
+Quindi da http://localhost:9090/targets ispezionare se il taget upload è disponibile:
+
+    serviceMonitor/monitoring/upload-servicemonitor/0
+
+Anche service discovery riporta informazioni. Oppure usare grafana a http://localhost:3000 dopo aver seguito il port-forward:
+
+    kubectl  port-forward svc/kube-prom-stack-grafana -n monitoring 3000:80
+
+
 ### Fix problemi ServiceMonitoring custom app
 Riferimento: https://github.com/prometheus-operator/kube-prometheus/issues/1392
 
