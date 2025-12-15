@@ -8,6 +8,12 @@ import time
 from prometheus_client import Counter, Histogram, Gauge, Summary
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import make_asgi_app
+import logging.config
+from logging_config import LOGGING_CONFIG
+
+logging.config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger(__name__)
+logger.info("Starting App")
 
 app = FastAPI()
 
@@ -69,18 +75,21 @@ app.mount("/metrics", metrics_app)
 security = HTTPBearer(auto_error=True)
 
 def get_expected_token() -> str:
+    # imposta il token via env var; fallback a valore di default per demo
     return os.getenv("API_BEARER_TOKEN", "mysecrettoken")
 
 def require_bearer_token(
-    creds: HTTPAuthorizationCredentials = Depends(security),
-    expected: str = Depends(get_expected_token),
+        creds: HTTPAuthorizationCredentials = Depends(security),
+        expected: str = Depends(get_expected_token),
 ):
     if creds.scheme.lower() != "bearer" or creds.credentials != expected:
+        logger.warning(f"Invalid authentication attempt with scheme {creds.scheme}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing bearer token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    logger.info("Successful authentication")
     return True
 
 @app.post("/upload", dependencies=[Depends(require_bearer_token)])
@@ -88,15 +97,17 @@ async def upload_package(file: UploadFile = File(...)):
     start_time = time.time()
     try:
         if not file.filename.endswith(".zip"):
+            logger.warning(f"Rejected non-zip file upload attempt: {file.filename}")
             UPLOAD_REQUESTS.labels(status="invalid_format").inc()
             raise HTTPException(status_code=400, detail="Only .zip files are allowed")
-        
+
+        logger.info(f"Receiving upload request for file: {file.filename}")
         dest_path = UPLOAD_DIR / file.filename
         with dest_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        
+
         file_size = dest_path.stat().st_size
-        
+
         # Update metrics for successful upload
         UPLOAD_REQUESTS.labels(status="success").inc()
         UPLOAD_BYTES.inc(file_size)
@@ -104,9 +115,10 @@ async def upload_package(file: UploadFile = File(...)):
         UPLOAD_DURATION.observe(time.time() - start_time)
 
         update_upload_files_total()
-        
+
+        logger.info(f"Successfully uploaded file {file.filename} ({file_size} bytes)")
         return {"filename": file.filename, "size": file_size}
-    
+
     except HTTPException:
         raise
     except Exception as e:
@@ -117,14 +129,21 @@ async def upload_package(file: UploadFile = File(...)):
 
 @app.get("/uploads", dependencies=[Depends(require_bearer_token)])
 def list_uploads():
+    logger.info("Listing uploaded files")
     UPLOAD_LIST_REQUESTS.inc()
     files = [f.name for f in UPLOAD_DIR.iterdir() if f.is_file()]
+    logger.debug(f"Found {len(files)} files")
     return {"uploaded_files": files}
+
 
 @app.get("/debug")
 def debug(request: Request):
+    logger.info("Debug endpoint accessed")
+    logger.debug(f"Request headers: {dict(request.headers)}")
     return {"headers": dict(request.headers)}
+
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
