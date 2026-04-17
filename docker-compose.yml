@@ -5,7 +5,7 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "80:8000"
     environment:
       - API_BEARER_TOKEN=${API_TOKEN}
     volumes:
