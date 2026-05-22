@@ -9,7 +9,7 @@ services:
     environment:
       - API_BEARER_TOKEN=${API_TOKEN}
     volumes:
-      - ./uploads:/app/uploads
+      - ./uploads:/uploads
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

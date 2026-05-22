@@ -96,10 +96,10 @@ def require_bearer_token(
 async def upload_package(file: UploadFile = File(...)):
     start_time = time.time()
     try:
-        if not file.filename.endswith(".zip"):
+        '''if not file.filename.endswith(".zip"):
             logger.warning(f"Rejected non-zip file upload attempt: {file.filename}")
             UPLOAD_REQUESTS.labels(status="invalid_format").inc()
-            raise HTTPException(status_code=400, detail="Only .zip files are allowed")
+            raise HTTPException(status_code=400, detail="Only .zip files are allowed")'''
 
         logger.info(f"Receiving upload request for file: {file.filename}")
         dest_path = UPLOAD_DIR / file.filename
